@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>7-ELEVEN - Quản Lý Hạn Sử Dụng</title>
+    <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
+    <style>
+        :root {
+            --7el-green: #008453;
+            --7el-red: #EE2A24;
+            --7el-orange: #F37022;
+            --7el-dark: #231F20;
+            --7el-light: #F4F6F4;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
+            margin: 0; 
+            padding: 15px; 
+            background-color: var(--7el-light); 
+            color: var(--7el-dark); 
+        }
+
+        .container { 
+            max-width: 650px; 
+            margin: 10px auto; 
+            background: white; 
+            padding: 20px; 
+            border-radius: 12px; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+            border-top: 6px solid var(--7el-green); 
+        }
+
+        .brand-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .brand-logo-text {
+            font-size: 24px;
+            font-weight: 900;
+            letter-spacing: -1px;
+            color: var(--7el-green);
+            margin: 0 0 5px 0;
+            text-transform: uppercase;
+        }
+        
+        .brand-logo-text span { color: var(--7el-red); }
+
+        .stripes {
+            display: flex;
+            height: 4px;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .stripe-orange { flex: 1; background-color: var(--7el-orange); }
+        .stripe-red { flex: 1; background-color: var(--7el-red); }
+        .stripe-green { flex: 1; background-color: var(--7el-green); }
+
+        h3 { text-align: center; color: #555; margin-top: 10px; font-size: 16px; font-weight: 600; }
+        label { font-weight: bold; display: block; margin-bottom: 8px; color: #444; font-size: 14px; }
+        
+        select { 
+            width: 100%; 
+            padding: 12px; 
+            font-size: 16px; 
+            border-radius: 8px; 
+            border: 2px solid #ddd; 
+            margin-bottom: 20px; 
+            background-color: #fff;
+            box-sizing: border-box;
+        }
+        select:focus { border-color: var(--7el-green); outline: none; }
+
+        /* Giao diện hiển thị danh sách sản phẩm */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; display: none; background: white; }
+        th, td { padding: 12px 10px; text-align: left; font-size: 14px; border-bottom: 1px solid #eee; vertical-align: middle; }
+        
+        th { 
+            background-color: var(--7el-green); 
+            color: white; 
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 13px;
+        }
+        
+        .food-name { color: var(--7el-dark); font-weight: 600; font-size: 15px; margin-bottom: 5px; }
+        
+        /* CSS tối ưu cho hình ảnh mã vạch để máy dễ quét */
+        .barcode-container {
+            display: block;
+            margin-top: 5px;
+        }
+        .barcode-img {
+            max-width: 140px;
+            height: auto;
+        }
+        
+        .temp-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            background-color: #e9ecef;
+            color: #495057;
+        }
+
+        .loading { text-align: center; font-style: italic; color: #666; display: none; padding: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="brand-header">
+        <h1 class="brand-logo-text">7-<span>ELEVEN</span></h1>
+        <div class="stripes">
+            <div class="stripe-orange"></div>
+            <div class="stripe-red"></div>
+            <div class="stripe-green"></div>
+        </div>
+        <h3>TRA CỨU HẠN SỬ DỤNG & MÃ VẠCH</h3>
+    </div>
+    
+    <label for="tagFilter">Chọn loại Tag phân loại hàng hóa:</label>
+    <select id="tagFilter" onchange="filterData()">
+        <option value="">-- Chọn phân loại sản phẩm --</option>
+        <option value="tag ngày">Tag Ngày (Daily)</option>
+        <option value="tag tuần">Tag Tuần (Weekly)</option>
+        <option value="tag khác">Tag Khác</option>
+    </select>
+
+    <div id="loadingText" class="loading">Đang tải dữ liệu hệ thống...</div>
+
+    <table id="resultTable">
+        <thead>
+            <tr>
+                <th>Thông tin món & Mã vạch</th>
+                <th>Bảo quản</th>
+                <th>Hạn dùng</th>
+            </tr>
+        </thead>
+        <tbody id="tableBody">
+            </tbody>
+    </table>
+</div>
+
+<script>
+    // ĐIỀN LINK API SCRIPT CỦA BẠN VÀO ĐÂY:
+    const apiURL = "https://script.google.com/macros/s/AKfycbz2bd0K1BrwnkAaakW2Prhs4NiiMkYByKNjgKRUMCVsV7yR8zwqyXb0pnJb1-HskSkTsA/exec"; 
+    let allData = [];
+
+    window.onload = function() {
+        document.getElementById('loadingText').style.display = 'block';
+        fetch(apiURL)
+            .then(response => response.json())
+            .then(data => {
+                allData = data;
+                document.getElementById('loadingText').style.display = 'none';
+            })
+            .catch(error => {
+                console.error('Lỗi kết nối:', error);
+                document.getElementById('loadingText').innerText = 'Lỗi kết nối database 7-Eleven!';
+            });
+    };
+
+    function filterData() {
+        const selectedTag = document.getElementById('tagFilter').value;
+        const table = document.getElementById('resultTable');
+        const tbody = document.getElementById('tableBody');
+        
+        tbody.innerHTML = "";
+
+        if (selectedTag === "") {
+            table.style.display = "none";
+            return;
+        }
+
+        const filtered = allData.filter(item => item.Tag && item.Tag.toString().toLowerCase().trim() === selectedTag.toLowerCase());
+
+        if(filtered.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 20px; color:#999;">Không có sản phẩm nào.</td></tr>`;
+        } else {
+            filtered.forEach((item, index) => {
+                // Tạo một ID duy nhất cho mỗi thẻ <svg> chứa mã vạch
+                const barcodeId = `barcode-${index}`;
+                const cleanBarcode = item.Barcode ? item.Barcode.toString().trim() : '';
+
+                let row = `<tr>
+                    <td>
+                        <div class="food-name">${item.TenMon || ''}</div>
+                        <div class="barcode-container">
+                            ${cleanBarcode ? `<svg id="${barcodeId}" class="barcode-img"></svg>` : '<span style="color:#ccc; font-size:12px;">Không có barcode</span>'}
+                        </div>
+                    </td>
+                    <td><span class="temp-badge">${item.NhietDo || 'Thường'}</span></td>
+                    <td style="color: var(--7el-red); font-weight: bold;">${item.HanSuDung || ''}</td>
+                </tr>`;
+                
+                tbody.innerHTML += row;
+            });
+
+            // Sau khi render HTML xong, tiến hành gọi JsBarcode để vẽ các sọc mã vạch
+            filtered.forEach((item, index) => {
+                const cleanBarcode = item.Barcode ? item.Barcode.toString().trim() : '';
+                if (cleanBarcode) {
+                    try {
+                        JsBarcode(`#barcode-${index}`, cleanBarcode, {
+                            format: "CODE128", // Định dạng chuẩn, nhận diện tốt cả chữ lẫn số
+                            lineColor: "#000",
+                            width: 1.5,        // Độ rộng thanh vạch vừa phải để hiển thị đẹp trên điện thoại
+                            height: 45,        // Chiều cao mã vạch đủ để súng quét nhận diện tốt
+                            displayValue: true // Vẫn hiện dòng chữ số nhỏ phía dưới mã vạch để đối chiếu bằng mắt
+                        });
+                    } catch (err) {
+                        console.error("Lỗi tạo mã vạch cho sản phẩm:", item.TenMon, err);
+                    }
+                }
+            });
+        }
+        
+        table.style.display = "table";
+    }
+</script>
+
+</body>
+</html>
