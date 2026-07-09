@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7-ELEVEN - Quản Lý Hạn Sử Dụng</title>
+    <title>7-ELEVEN - Tag in Hạn Sử Dụng</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
@@ -11,96 +11,249 @@
             --7el-green: #008453;
             --7el-red: #EE2A24;
             --7el-orange: #F37022;
-            --7el-dark: #231F20;
-            --7el-light: #F4F6F4;
+            --7el-dark: #1a202c;
+            
+            /* Cấu hình nâng cao cho Liquid Glass */
+            --glass-bg: rgba(255, 255, 255, 0.28);
+            --glass-border: rgba(255, 255, 255, 0.45);
+            --glass-highlight: rgba(255, 255, 255, 0.6);
+            --liquid-shadow: rgba(31, 38, 135, 0.06);
         }
 
         body { 
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
             margin: 0; 
-            padding: 15px; 
-            background-color: var(--7el-light); 
+            padding: 20px 15px; 
+            /* Phông nền với các khối màu "chất lỏng" mờ tạo độ sâu khi nhìn xuyên qua kính */
+            background: 
+                radial-gradient(circle at 10% 20%, rgba(0, 132, 83, 0.06) 0%, transparent 40%),
+                radial-gradient(circle at 90% 80%, rgba(243, 112, 34, 0.06) 0%, transparent 40%),
+                linear-gradient(135deg, #eef2f7 0%, #dfe7f0 100%);
+            background-attachment: fixed;
             color: var(--7el-dark); 
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
         }
 
+        /* Container mô phỏng một khối kính lỏng dày, bo tròn cực mạnh */
         .container { 
-            max-width: 650px; 
-            margin: 10px auto; 
-            background: white; 
-            padding: 20px; 
-            border-radius: 12px; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
-            border-top: 6px solid var(--7el-green); 
+            width: 100%;
+            max-width: 680px; 
+            background: var(--glass-bg); 
+            backdrop-filter: blur(25px) saturate(180%);
+            -webkit-backdrop-filter: blur(25px) saturate(180%);
+            padding: 35px 30px; 
+            border-radius: 30px; 
+            /* Đường viền tạo hiệu ứng ánh sáng khúc xạ ở mép kính */
+            border: 1px solid var(--glass-border);
+            /* Đổ bóng đa tầng giúp container nổi hẳn lên như giọt nước bồng bềnh */
+            box-shadow: 
+                0 8px 32px 0 var(--liquid-shadow),
+                inset 0 2px 4px 0 var(--glass-highlight),
+                inset 0 -2px 4px 0 rgba(0, 0, 0, 0.03);
+            position: relative;
+            box-sizing: border-box;
         }
 
+        /* Vệt màu đặc trưng 7-Eleven được tinh chỉnh bóng bẩy nằm gọn gàng */
         .brand-header {
             text-align: center;
-            margin-bottom: 25px;
+            margin-bottom: 35px;
+            position: relative;
         }
         
         .brand-logo-text {
-            font-size: 24px;
+            font-size: 34px;
             font-weight: 900;
-            letter-spacing: -1px;
+            letter-spacing: -1.5px;
             color: var(--7el-green);
-            margin: 0 0 5px 0;
+            margin: 0 0 8px 0;
             text-transform: uppercase;
+            filter: drop-shadow(0 2px 8px rgba(0,132,83,0.15));
         }
         
         .brand-logo-text span { color: var(--7el-red); }
 
         .stripes {
             display: flex;
-            height: 4px;
-            width: 100%;
-            margin-top: 10px;
+            height: 6px;
+            width: 100px;
+            margin: 15px auto 0 auto;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
         }
         .stripe-orange { flex: 1; background-color: var(--7el-orange); }
         .stripe-red { flex: 1; background-color: var(--7el-red); }
         .stripe-green { flex: 1; background-color: var(--7el-green); }
 
-        h3 { text-align: center; color: #555; margin-top: 10px; font-size: 16px; font-weight: 600; }
-        label { font-weight: bold; display: block; margin-bottom: 8px; color: #444; font-size: 14px; }
+        h3 { 
+            text-align: center; 
+            color: #4a5568; 
+            margin-top: 15px; 
+            font-size: 13px; 
+            font-weight: 800; 
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        label { 
+            font-weight: 700; 
+            display: block; 
+            margin-bottom: 12px; 
+            color: #2d3748; 
+            font-size: 14px; 
+            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
+        }
         
+        /* Dropdown mô phỏng khay kính chìm bóng loáng */
         select { 
             width: 100%; 
-            padding: 12px; 
-            font-size: 16px; 
-            border-radius: 8px; 
-            border: 2px solid #ddd; 
-            margin-bottom: 20px; 
-            background-color: #fff;
+            padding: 15px 18px; 
+            font-size: 15px; 
+            font-weight: 600;
+            border-radius: 16px; 
+            border: 1px solid rgba(255, 255, 255, 0.5); 
+            margin-bottom: 30px; 
+            background: rgba(255, 255, 255, 0.45);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            color: var(--7el-dark);
             box-sizing: border-box;
+            box-shadow: 
+                inset 0 2px 4px rgba(0,0,0,0.03), 
+                0 4px 15px rgba(0,0,0,0.02);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            outline: none;
         }
-        select:focus { border-color: var(--7el-green); outline: none; }
+        select:focus { 
+            border-color: var(--7el-green); 
+            background: rgba(255, 255, 255, 0.75);
+            box-shadow: 
+                0 0 0 4px rgba(0, 132, 83, 0.12), 
+                0 8px 20px rgba(0,0,0,0.04);
+        }
 
+        /* Nút bấm hiệu ứng Gel Thủy Tinh lỏng (Liquid Gel) rực rỡ */
         .btn-print {
             display: none;
             width: 100%;
-            padding: 14px;
-            background-color: var(--7el-orange);
+            padding: 16px;
+            background: linear-gradient(135deg, #ff843d 0%, var(--7el-orange) 50%, #df570b 100%);
             color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 16px;
-            font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 700;
             cursor: pointer;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
             text-transform: uppercase;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            transition: background 0.2s;
+            letter-spacing: 0.5px;
+            /* Tạo bề mặt căng bóng như gel lỏng */
+            box-shadow: 
+                0 8px 20px rgba(243, 112, 34, 0.25),
+                inset 0 4px 6px rgba(255,255,255,0.4),
+                inset 0 -2px 6px rgba(0,0,0,0.15);
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
         }
-        .btn-print:hover { background-color: #d95d16; }
-        .btn-print:disabled { background-color: #ccc; cursor: not-allowed; }
+        .btn-print:hover { 
+            transform: translateY(-2px);
+            filter: brightness(1.05);
+            box-shadow: 
+                0 12px 26px rgba(243, 112, 34, 0.35),
+                inset 0 4px 8px rgba(255,255,255,0.5);
+        }
+        .btn-print:active {
+            transform: translateY(1px);
+            box-shadow: 0 4px 10px rgba(243, 112, 34, 0.2);
+        }
+        .btn-print:disabled { 
+            background: rgba(180, 190, 200, 0.5); 
+            color: #718096;
+            border-color: transparent;
+            box-shadow: none;
+            cursor: not-allowed; 
+            transform: none;
+            filter: none;
+        }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; display: none; background: white; }
-        th, td { padding: 12px 10px; text-align: left; font-size: 14px; border-bottom: 1px solid #eee; vertical-align: middle; }
-        th { background-color: var(--7el-green); color: white; font-weight: 600; text-transform: uppercase; font-size: 13px; }
-        .food-name { color: var(--7el-dark); font-weight: 600; font-size: 15px; margin-bottom: 5px; }
-        .barcode-container { display: block; margin-top: 5px; }
-        .barcode-img { max-width: 140px; height: auto; }
-        .temp-badge { display: inline-block; padding: 4px 8px; border-radius: 4px; font-size: 12px; font-weight: bold; background-color: #e9ecef; color: #495057; }
-        .loading { text-align: center; font-style: italic; color: #666; display: none; padding: 20px; }
+        /* Bảng dữ liệu kính mờ nguyên khối */
+        table { 
+            width: 100%; 
+            border-collapse: separate; 
+            border-spacing: 0;
+            margin-top: 15px; 
+            display: none; 
+            background: rgba(255, 255, 255, 0.2); 
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.4);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.02);
+        }
+        th, td { 
+            padding: 16px 14px; 
+            text-align: left; 
+            font-size: 14px; 
+            border-bottom: 1px solid rgba(255, 255, 255, 0.3); 
+            vertical-align: middle; 
+        }
+        tr:last-child td {
+            border-bottom: none;
+        }
+        th { 
+            background: linear-gradient(135deg, var(--7el-green) 0%, #006e45 100%); 
+            color: white; 
+            font-weight: 700; 
+            text-transform: uppercase; 
+            font-size: 12px; 
+            letter-spacing: 0.5px;
+            border-bottom: none;
+            box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
+        }
+        .food-name { 
+            color: var(--7el-dark); 
+            font-weight: 700; 
+            font-size: 15px; 
+            margin-bottom: 6px; 
+        }
+        
+        /* Khung chứa mã vạch bo góc lơ lửng */
+        .barcode-container { 
+            display: inline-block; 
+            margin-top: 6px; 
+            background: rgba(255, 255, 255, 0.85);
+            padding: 8px;
+            border-radius: 12px;
+            border: 1px solid rgba(255,255,255,0.6);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+        }
+        .barcode-img { max-width: 140px; height: auto; display: block; }
+        
+        /* Badge nhiệt độ trong suốt nhẹ */
+        .temp-badge { 
+            display: inline-block; 
+            padding: 6px 12px; 
+            border-radius: 10px; 
+            font-size: 12px; 
+            font-weight: 700; 
+            background: rgba(255, 255, 255, 0.5); 
+            color: #4a5568; 
+            border: 1px solid rgba(255,255,255,0.6);
+        }
+        
+        .loading { 
+            text-align: center; 
+            font-style: italic; 
+            color: #4a5568; 
+            display: none; 
+            padding: 30px; 
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
@@ -113,7 +266,7 @@
             <div class="stripe-red"></div>
             <div class="stripe-green"></div>
         </div>
-        <h3>TRA CỨU & XUẤT FILE IN TEM A4</h3>
+        <h3>TRA CỨU BARCODE, XUẤT FILE IN TEM A4</h3>
     </div>
     
     <label for="tagFilter">Chọn loại Tag phân loại hàng hóa:</label>
@@ -178,7 +331,7 @@
         currentFilteredData = allData.filter(item => item.Tag && item.Tag.toString().toLowerCase().trim() === selectedTag.toLowerCase());
 
         if(currentFilteredData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 20px; color:#999;">Không có sản phẩm nào.</td></tr>`;
+            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 30px; color:#718096; font-weight:600;">Không có sản phẩm nào.</td></tr>`;
             btnPrint.style.display = "none";
         } else {
             btnPrint.style.display = "block";
@@ -190,11 +343,11 @@
                     <td>
                         <div class="food-name">${item.TenMon || ''}</div>
                         <div class="barcode-container">
-                            ${cleanBarcode ? `<svg id="${barcodeId}" class="barcode-img"></svg>` : '<span style="color:#ccc; font-size:12px;">Không có barcode</span>'}
+                            ${cleanBarcode ? `<svg id="${barcodeId}" class="barcode-img"></svg>` : '<span style="color:#718096; font-size:12px;">Không có barcode</span>'}
                         </div>
                     </td>
                     <td><span class="temp-badge">${item.NhietDo || 'Thường'}</span></td>
-                    <td style="color: var(--7el-red); font-weight: bold;">${item.HanSuDung || ''}</td>
+                    <td style="color: var(--7el-red); font-weight: 800;">${item.HanSuDung || ''}</td>
                 </tr>`;
                 tbody.innerHTML += row;
             });
@@ -280,7 +433,6 @@
             doc.addFont('Roboto-Regular.ttf', 'RobotoCustom', 'normal');
             doc.setFont('RobotoCustom', 'normal');
 
-            // Mốc thời gian mở bao bì: 6:00 Sáng ngày mai
             const now = new Date();
             const tomorrow = new Date(now);
             tomorrow.setDate(now.getDate() + 1);
@@ -288,7 +440,6 @@
 
             const openTimeInfo = parseDateTime(tomorrow);
 
-            // Cấu hình kích thước tem chuẩn 50x30 mm
             const tagWidth = 50;   
             const tagHeight = 30;  
             const startX = 5;      
@@ -308,51 +459,40 @@
 
                 const x = startX + (col * tagWidth);
                 const y = startY + (row * tagHeight);
-
-                // Điểm vạch chia cột dọc (Trái: ~32mm, Phải: ~18mm)
                 const splitX = x + 32; 
 
-                // 1. VẼ KHUNG NGOÀI & ĐƯỜNG KẺ CHIA
                 doc.setDrawColor(120); 
                 doc.setLineWidth(0.3);
-                doc.rect(x, y, tagWidth, tagHeight); // Khung viền ngoài tem
+                doc.rect(x, y, tagWidth, tagHeight); 
 
-                doc.line(splitX, y, splitX, y + tagHeight); // Đường vạch ngăn dọc Trái / Phải
-                doc.line(x, y + 9, splitX, y + 9);          // Ngăn dưới mục Sản phẩm
-                doc.line(x, y + 19, splitX, y + 19);        // Ngăn dưới mục Thời gian mở bao bì
+                doc.line(splitX, y, splitX, y + tagHeight); 
+                doc.line(x, y + 9, splitX, y + 9);          
+                doc.line(x, y + 19, splitX, y + 19);        
 
                 doc.setTextColor(0, 0, 0);
-
-                // --- PHẦN BÊN TRÁI ĐƯỜNG NGĂN ---
                 
-                // Tiêu đề SẢN PHẨM:
                 doc.setFontSize(5.5);
                 doc.text("SẢN PHẨM:", x + 1.5, y + 3.2);
                 
-                // Tên món (In hoa, tự động cắt chuỗi nếu quá dài)
                 doc.setFontSize(6.5);
                 let name = (item.TenMon || "SẢN PHẨM").toUpperCase();
                 if (name.length > 22) name = name.substring(0, 20) + "..";
                 doc.text(name, x + 1.5, y + 5.8);
 
-                // HSD TRÊN BAO BÌ:
                 doc.setFontSize(5);
                 doc.text("HSD TRÊN BAO BÌ:", x + 1.5, y + 8.2);
 
-                // THỜI GIAN: RÃ ĐÔNG/ MỞ BAO BÌ
                 doc.setFontSize(5.2);
                 doc.text("THỜI GIAN: RÃ ĐÔNG/ MỞ BAO BÌ", x + 1.5, y + 12);
                 doc.setFontSize(5);
                 doc.text(`NGÀY: ${openTimeInfo.dateStr}`, x + 1.5, y + 15);
                 doc.text(`GIỜ:  ${openTimeInfo.timeStr}`, x + 1.5, y + 18);
                 
-                // Ô vuông tick AM / PM mở bao bì
                 doc.rect(splitX - 6.5, y + 13.5, 1.8, 1.8); doc.setFontSize(4.5); doc.text("AM", splitX - 4, y + 15);
                 doc.rect(splitX - 6.5, y + 16.5, 1.8, 1.8); doc.setFontSize(4.5); doc.text("PM", splitX - 4, y + 18);
                 if(openTimeInfo.ampm === 'AM') { doc.setFontSize(5); doc.text("X", splitX - 6.2, y + 14.9); }
                 else { doc.setFontSize(5); doc.text("X", splitX - 6.2, y + 17.9); }
 
-                // THỜI HẠN HỦY
                 doc.setFontSize(5.5);
                 doc.text("THỜI HẠN HỦY", x + 1.5, y + 22.2);
                 
@@ -363,7 +503,6 @@
                     doc.text(`NGÀY: ${expInfo.dateStr}`, x + 1.5, y + 25.5);
                     doc.text(`GIỜ:  ${expInfo.timeStr}`, x + 1.5, y + 28.5);
 
-                    // Ô vuông tick AM / PM hạn hủy
                     doc.rect(splitX - 6.5, y + 23.8, 1.8, 1.8); doc.setFontSize(4.5); doc.text("AM", splitX - 4, y + 25.3);
                     doc.rect(splitX - 6.5, y + 26.8, 1.8, 1.8); doc.setFontSize(4.5); doc.text("PM", splitX - 4, y + 28.3);
                     if(expInfo.ampm === 'AM') { doc.setFontSize(5); doc.text("X", splitX - 6.2, y + 25.2); }
@@ -376,22 +515,17 @@
                     doc.rect(splitX - 6.5, y + 26.8, 1.8, 1.8); doc.setFontSize(4.5); doc.text("PM", splitX - 4, y + 28.3);
                 }
 
-                // --- PHẦN BÊN PHẢI ĐƯỜNG NGĂN ---
-                
-                // ĐK Bảo Quản:
                 doc.setFontSize(5.5);
                 doc.text("ĐK Bảo", splitX + 2, y + 3.5);
                 doc.text("Quản:", splitX + 2, y + 5.8);
 
                 const storageTemp = (item.NhietDo || "").toLowerCase().trim();
                 
-                // Vẽ 3 ô vuông tick môi trường bảo quản
                 doc.setFontSize(4.8);
                 doc.rect(splitX + 2, y + 8.5, 1.8, 1.8); doc.text("Freezer", splitX + 4.8, y + 10);
                 doc.rect(splitX + 2, y + 11.5, 1.8, 1.8); doc.text("Chiller", splitX + 4.8, y + 13);
                 doc.rect(splitX + 2, y + 14.5, 1.8, 1.8); doc.text("Ambient", splitX + 4.8, y + 16);
 
-                // Tự động tick lựa chọn dựa theo database
                 doc.setFontSize(5);
                 if(storageTemp.includes("đông") || storageTemp.includes("freezer")) {
                     doc.text("X", splitX + 2.2, y + 9.9);
@@ -401,13 +535,12 @@
                     doc.text("X", splitX + 2.2, y + 15.9);
                 }
 
-                // Nhân Viên & Tên mặc định HUY
                 doc.setFontSize(5.5);
                 doc.text("Nhân Viên:", splitX + 2, y + 21);
                 doc.setFontSize(6.5);
-                doc.setFont('RobotoCustom', 'bold'); // Làm đậm tên nhân viên cho rõ nét
+                doc.setFont('RobotoCustom', 'bold'); 
                 doc.text("HUY", splitX + 2, y + 25);
-                doc.setFont('RobotoCustom', 'normal'); // Trả lại font bình thường
+                doc.setFont('RobotoCustom', 'normal'); 
             });
 
             const selectedTagName = document.getElementById('tagFilter').value;
