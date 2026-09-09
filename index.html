@@ -2,257 +2,379 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>7-ELEVEN - Tag in Hạn Sử Dụng </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>7-ELEVEN - Tag Hạn Sử Dụng</title>
     <script src="https://cdn.jsdelivr.net/npm/jsbarcode@3.11.5/dist/JsBarcode.all.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         :root {
             --7el-green: #008453;
+            --7el-green-dark: #006e45;
             --7el-red: #EE2A24;
             --7el-orange: #F37022;
             --7el-dark: #1a202c;
-            
-            /* Cấu hình nâng cao cho Liquid Glass */
-            --glass-bg: rgba(255, 255, 255, 0.28);
-            --glass-border: rgba(255, 255, 255, 0.45);
-            --glass-highlight: rgba(255, 255, 255, 0.6);
-            --liquid-shadow: rgba(31, 38, 135, 0.06);
+
+            --glass-bg: rgba(255, 255, 255, 0.32);
+            --glass-border: rgba(255, 255, 255, 0.55);
+            --glass-highlight: rgba(255, 255, 255, 0.7);
+            --liquid-shadow: rgba(31, 38, 135, 0.08);
         }
 
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; 
-            margin: 0; 
-            padding: 20px 15px; 
-            /* Phông nền với các khối màu "chất lỏng" mờ tạo độ sâu khi nhìn xuyên qua kính */
-            background: 
-                radial-gradient(circle at 10% 20%, rgba(0, 132, 83, 0.06) 0%, transparent 40%),
-                radial-gradient(circle at 90% 80%, rgba(243, 112, 34, 0.06) 0%, transparent 40%),
-                linear-gradient(135deg, #eef2f7 0%, #dfe7f0 100%);
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            font-family: -apple-system, "SF Pro Text", "SF Pro Display", BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 24px 14px 120px 14px;
+            background:
+                radial-gradient(circle at 8% 15%, rgba(0, 132, 83, 0.10) 0%, transparent 42%),
+                radial-gradient(circle at 92% 12%, rgba(243, 112, 34, 0.10) 0%, transparent 40%),
+                radial-gradient(circle at 50% 100%, rgba(0, 132, 83, 0.06) 0%, transparent 50%),
+                linear-gradient(160deg, #eef2f7 0%, #dde6f0 55%, #e7edf5 100%);
             background-attachment: fixed;
-            color: var(--7el-dark); 
+            color: var(--7el-dark);
             min-height: 100vh;
             display: flex;
-            align-items: center;
+            align-items: flex-start;
             justify-content: center;
-            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* Container mô phỏng một khối kính lỏng dày, bo tròn cực mạnh */
-        .container { 
+        /* ===== Liquid Glass base card ===== */
+        .container {
             width: 100%;
-            max-width: 680px; 
-            background: var(--glass-bg); 
-            backdrop-filter: blur(25px) saturate(180%);
-            -webkit-backdrop-filter: blur(25px) saturate(180%);
-            padding: 35px 30px; 
-            border-radius: 30px; 
-            /* Đường viền tạo hiệu ứng ánh sáng khúc xạ ở mép kính */
+            max-width: 720px;
+            background: var(--glass-bg);
+            backdrop-filter: blur(30px) saturate(190%);
+            -webkit-backdrop-filter: blur(30px) saturate(190%);
+            padding: 32px 26px;
+            border-radius: 36px;
             border: 1px solid var(--glass-border);
-            /* Đổ bóng đa tầng giúp container nổi hẳn lên như giọt nước bồng bềnh */
-            box-shadow: 
-                0 8px 32px 0 var(--liquid-shadow),
-                inset 0 2px 4px 0 var(--glass-highlight),
-                inset 0 -2px 4px 0 rgba(0, 0, 0, 0.03);
+            box-shadow:
+                0 20px 50px -10px var(--liquid-shadow),
+                0 2px 8px rgba(0,0,0,0.03),
+                inset 0 1.5px 1px 0 var(--glass-highlight),
+                inset 0 -8px 20px -10px rgba(0, 0, 0, 0.04);
             position: relative;
-            box-sizing: border-box;
+            overflow: hidden;
         }
+        /* thin rim-light sweep across the top edge, the signature Liquid Glass refraction cue */
+        .container::before {
+            content: "";
+            position: absolute; top: 0; left: 0; right: 0; height: 40%;
+            background: linear-gradient(180deg, rgba(255,255,255,0.5) 0%, rgba(255,255,255,0) 100%);
+            pointer-events: none; z-index: 0;
+        }
+        .container > * { position: relative; z-index: 1; }
 
-        /* Vệt màu đặc trưng 7-Eleven được tinh chỉnh bóng bẩy nằm gọn gàng */
-        .brand-header {
-            text-align: center;
-            margin-bottom: 35px;
-            position: relative;
-        }
-        
+        .brand-header { text-align: center; margin-bottom: 22px; }
+
         .brand-logo-text {
-            font-size: 34px;
-            font-weight: 900;
-            letter-spacing: -1.5px;
-            color: var(--7el-green);
-            margin: 0 0 8px 0;
-            text-transform: uppercase;
+            font-size: 32px; font-weight: 800; letter-spacing: -1.2px; color: var(--7el-green);
+            margin: 0 0 6px 0; text-transform: uppercase;
             filter: drop-shadow(0 2px 8px rgba(0,132,83,0.15));
         }
-        
         .brand-logo-text span { color: var(--7el-red); }
 
         .stripes {
-            display: flex;
-            height: 6px;
-            width: 100px;
-            margin: 15px auto 0 auto;
-            border-radius: 20px;
-            overflow: hidden;
-            box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+            display: flex; height: 5px; width: 90px; margin: 12px auto 0 auto;
+            border-radius: 20px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
         }
         .stripe-orange { flex: 1; background-color: var(--7el-orange); }
         .stripe-red { flex: 1; background-color: var(--7el-red); }
         .stripe-green { flex: 1; background-color: var(--7el-green); }
 
-        h3 { 
-            text-align: center; 
-            color: #4a5568; 
-            margin-top: 15px; 
-            font-size: 13px; 
-            font-weight: 800; 
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            opacity: 0.8;
+        h3 {
+            text-align: center; color: #4a5568; margin: 14px 0 0 0; font-size: 12.5px;
+            font-weight: 700; letter-spacing: 0.6px; text-transform: uppercase; opacity: 0.7;
         }
 
-        label { 
-            font-weight: 700; 
-            display: block; 
-            margin-bottom: 12px; 
-            color: #2d3748; 
-            font-size: 14px; 
-            text-shadow: 0 1px 0 rgba(255,255,255,0.5);
-        }
-        
-        /* Dropdown mô phỏng khay kính chìm bóng loáng */
-        select { 
-            width: 100%; 
-            padding: 15px 18px; 
-            font-size: 15px; 
-            font-weight: 600;
-            border-radius: 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.5); 
-            margin-bottom: 30px; 
-            background: rgba(255, 255, 255, 0.45);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            color: var(--7el-dark);
-            box-sizing: border-box;
-            box-shadow: 
-                inset 0 2px 4px rgba(0,0,0,0.03), 
-                0 4px 15px rgba(0,0,0,0.02);
-            transition: all 0.3s ease;
-            cursor: pointer;
-            outline: none;
-        }
-        select:focus { 
-            border-color: var(--7el-green); 
-            background: rgba(255, 255, 255, 0.75);
-            box-shadow: 
-                0 0 0 4px rgba(0, 132, 83, 0.12), 
-                0 8px 20px rgba(0,0,0,0.04);
+        .section-label {
+            font-weight: 700; display: block; margin: 22px 2px 10px 2px; color: #2d3748;
+            font-size: 12.5px; letter-spacing: 0.2px;
         }
 
-        /* Nút bấm hiệu ứng Gel Thủy Tinh lỏng (Liquid Gel) rực rỡ */
-        .btn-print {
-            display: none;
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #ff843d 0%, var(--7el-orange) 50%, #df570b 100%);
-            color: white;
-            border: 1px solid rgba(255,255,255,0.3);
-            border-radius: 16px;
-            font-size: 15px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-bottom: 30px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            /* Tạo bề mặt căng bóng như gel lỏng */
-            box-shadow: 
-                0 8px 20px rgba(243, 112, 34, 0.25),
-                inset 0 4px 6px rgba(255,255,255,0.4),
-                inset 0 -2px 6px rgba(0,0,0,0.15);
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+        /* ===== Segmented control (iOS 26 style) ===== */
+        .segmented-control {
+            position: relative; display: flex; gap: 2px;
+            background: rgba(120, 120, 128, 0.14);
+            border: 1px solid rgba(255,255,255,0.5);
+            border-radius: 16px; padding: 4px;
+            backdrop-filter: blur(20px) saturate(180%);
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
-        .btn-print:hover { 
-            transform: translateY(-2px);
-            filter: brightness(1.05);
-            box-shadow: 
-                0 12px 26px rgba(243, 112, 34, 0.35),
-                inset 0 4px 8px rgba(255,255,255,0.5);
-        }
-        .btn-print:active {
-            transform: translateY(1px);
-            box-shadow: 0 4px 10px rgba(243, 112, 34, 0.2);
-        }
-        .btn-print:disabled { 
-            background: rgba(180, 190, 200, 0.5); 
-            color: #718096;
-            border-color: transparent;
-            box-shadow: none;
-            cursor: not-allowed; 
-            transform: none;
-            filter: none;
-        }
-
-        /* Bảng dữ liệu kính mờ nguyên khối */
-        table { 
-            width: 100%; 
-            border-collapse: separate; 
-            border-spacing: 0;
-            margin-top: 15px; 
-            display: none; 
-            background: rgba(255, 255, 255, 0.2); 
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            box-shadow: 0 8px 24px rgba(0,0,0,0.02);
-        }
-        th, td { 
-            padding: 16px 14px; 
-            text-align: left; 
-            font-size: 14px; 
-            border-bottom: 1px solid rgba(255, 255, 255, 0.3); 
-            vertical-align: middle; 
-        }
-        tr:last-child td {
-            border-bottom: none;
-        }
-        th { 
-            background: linear-gradient(135deg, var(--7el-green) 0%, #006e45 100%); 
-            color: white; 
-            font-weight: 700; 
-            text-transform: uppercase; 
-            font-size: 12px; 
-            letter-spacing: 0.5px;
-            border-bottom: none;
-            box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
-        }
-        .food-name { 
-            color: var(--7el-dark); 
-            font-weight: 700; 
-            font-size: 15px; 
-            margin-bottom: 6px; 
-        }
-        
-        /* Khung chứa mã vạch bo góc lơ lửng */
-        .barcode-container { 
-            display: inline-block; 
-            margin-top: 6px; 
-            background: rgba(255, 255, 255, 0.85);
-            padding: 8px;
+        .segmented-indicator {
+            position: absolute; top: 4px; bottom: 4px; left: 4px; width: 40px;
+            background: rgba(255,255,255,0.92);
             border-radius: 12px;
-            border: 1px solid rgba(255,255,255,0.6);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02);
+            box-shadow: 0 3px 10px rgba(0,0,0,0.14), 0 1px 2px rgba(0,0,0,0.08), inset 0 1px 1px rgba(255,255,255,0.8);
+            transition: left 0.4s cubic-bezier(0.34, 1.3, 0.64, 1), width 0.4s cubic-bezier(0.34, 1.3, 0.64, 1);
+            z-index: 0;
         }
-        .barcode-img { max-width: 140px; height: auto; display: block; }
-        
-        /* Badge nhiệt độ trong suốt nhẹ */
-        .temp-badge { 
-            display: inline-block; 
-            padding: 6px 12px; 
-            border-radius: 10px; 
-            font-size: 12px; 
-            font-weight: 700; 
-            background: rgba(255, 255, 255, 0.5); 
-            color: #4a5568; 
-            border: 1px solid rgba(255,255,255,0.6);
+        .segment-btn {
+            position: relative; z-index: 1; flex: 1; border: none; background: transparent;
+            padding: 10px 4px; font-size: 12px; font-weight: 700; color: #5a6474;
+            border-radius: 12px; cursor: pointer; font-family: inherit;
+            transition: color 0.25s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
-        
-        .loading { 
-            text-align: center; 
-            font-style: italic; 
-            color: #4a5568; 
-            display: none; 
-            padding: 30px; 
-            font-weight: 600;
+        .segment-btn.active { color: var(--7el-green-dark); }
+
+        /* ===== Search row ===== */
+        .toolbar-row { display: flex; gap: 10px; margin-top: 14px; }
+        .search-wrap { position: relative; flex: 1; }
+        .search-wrap input {
+            width: 100%; padding: 13px 16px 13px 40px; font-size: 14.5px; font-weight: 500;
+            border-radius: 15px; border: 1px solid rgba(255,255,255,0.55);
+            background: rgba(120,120,128,0.12);
+            backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            color: var(--7el-dark); outline: none; font-family: inherit;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.04);
+            transition: all 0.25s ease;
+        }
+        .search-wrap input:focus {
+            background: rgba(255,255,255,0.75); border-color: rgba(0,132,83,0.4);
+            box-shadow: 0 0 0 4px rgba(0,132,83,0.1);
+        }
+        .search-wrap::before {
+            content: "🔎"; position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+            font-size: 13px; opacity: 0.55; pointer-events: none;
+        }
+        .icon-square-btn {
+            flex-shrink: 0; width: 46px; border: 1px solid rgba(255,255,255,0.55);
+            border-radius: 15px; background: rgba(120,120,128,0.12); cursor: pointer;
+            font-size: 16px; display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s cubic-bezier(0.34,1.3,0.64,1); color: var(--7el-dark);
+            backdrop-filter: blur(16px);
+        }
+        .icon-square-btn:active { transform: scale(0.9); background: rgba(255,255,255,0.6); }
+
+        /* ===== Buttons ===== */
+        .btn {
+            padding: 15px; border-radius: 17px; font-size: 14px; font-weight: 700;
+            cursor: pointer; border: 1px solid rgba(255,255,255,0.3); letter-spacing: 0.2px;
+            transition: all 0.2s cubic-bezier(0.34, 1.3, 0.64, 1); font-family: inherit;
+            position: relative; overflow: hidden;
+        }
+        .btn::after {
+            content: ""; position: absolute; inset: 0; border-radius: inherit;
+            background: linear-gradient(180deg, rgba(255,255,255,0.35) 0%, rgba(255,255,255,0) 55%);
+            pointer-events: none;
+        }
+        .btn:active { transform: scale(0.97); }
+        .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+        .btn-block { width: 100%; }
+
+        .btn-print {
+            display: none; width: 100%; margin-top: 20px; text-transform: uppercase; font-size: 13px;
+            background: linear-gradient(135deg, #ff8c4a 0%, var(--7el-orange) 55%, #df570b 100%);
+            color: white;
+            box-shadow: 0 10px 24px rgba(243, 112, 34, 0.3), inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #14b378 0%, var(--7el-green) 55%, var(--7el-green-dark) 100%);
+            color: white;
+            box-shadow: 0 10px 24px rgba(0, 132, 83, 0.3), inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+        .btn-secondary {
+            background: rgba(120,120,128,0.14); color: #2d3748; border: 1px solid rgba(255,255,255,0.4);
+            backdrop-filter: blur(10px);
+        }
+        .btn-danger {
+            background: linear-gradient(135deg, #ff655f 0%, var(--7el-red) 55%, #c81f1a 100%);
+            color: white;
+            box-shadow: 0 10px 24px rgba(238, 42, 36, 0.3), inset 0 1px 1px rgba(255,255,255,0.4);
+        }
+
+        /* ===== List meta ===== */
+        .list-meta {
+            display: flex; justify-content: space-between; align-items: center;
+            margin: 22px 2px 12px 2px; font-size: 11.5px; font-weight: 700; color: #5a6474;
+            text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.75;
+        }
+
+        .empty-hint, .loading {
+            text-align: center; color: #5a6474; padding: 40px 20px; font-weight: 600;
+            font-size: 14px; display: none;
+        }
+
+        /* ===== Item cards ===== */
+        #itemList { display: none; flex-direction: column; gap: 13px; }
+
+        .item-card {
+            position: relative; overflow: hidden;
+            background: rgba(255, 255, 255, 0.42);
+            border: 1px solid rgba(255, 255, 255, 0.55);
+            border-radius: 24px;
+            padding: 16px 16px 14px 16px;
+            box-shadow: 0 8px 22px rgba(0,0,0,0.035), inset 0 1px 1px rgba(255,255,255,0.5);
+            transition: box-shadow 0.2s ease, transform 0.2s ease;
+        }
+        .item-card:active { transform: scale(0.99); }
+        /* liquid sheen sweeping across the glass surface */
+        .item-card::before {
+            content: ""; position: absolute; inset: -60% -20%; z-index: 0; pointer-events: none;
+            background: linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.4) 49%, transparent 63%);
+            transform: translate3d(-25%, -10%, 0);
+            animation: sheen 9s ease-in-out infinite;
+            mix-blend-mode: overlay;
+        }
+        .item-card > * { position: relative; z-index: 1; }
+        @keyframes sheen {
+            0%, 100% { transform: translate3d(-25%, -8%, 0); }
+            50% { transform: translate3d(15%, 8%, 0); }
+        }
+        @media (prefers-reduced-motion: reduce) { .item-card::before { animation: none; } }
+
+        .item-card-header {
+            display: flex; justify-content: space-between; align-items: flex-start; gap: 10px;
+            margin-bottom: 10px;
+        }
+        .food-name { color: var(--7el-dark); font-weight: 800; font-size: 15px; line-height: 1.3; }
+
+        .item-actions { display: flex; gap: 6px; flex-shrink: 0; }
+        .pill-btn {
+            border: none; border-radius: 12px; padding: 7px 11px; font-size: 12px;
+            font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px;
+            transition: all 0.2s cubic-bezier(0.34,1.3,0.64,1); white-space: nowrap; font-family: inherit;
+        }
+        .pill-btn:active { transform: scale(0.92); }
+        .pill-edit { background: rgba(0, 132, 83, 0.14); color: var(--7el-green-dark); }
+        .pill-delete { background: rgba(238, 42, 36, 0.12); color: #b3241f; }
+
+        .barcode-container {
+            display: inline-block; margin-top: 2px; background: rgba(255, 255, 255, 0.88);
+            padding: 8px; border-radius: 13px; border: 1px solid rgba(255,255,255,0.7);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+        }
+        .barcode-img { max-width: 150px; height: auto; display: block; }
+        .no-barcode { color: #718096; font-size: 12px; font-style: italic; }
+
+        .item-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+        .badge {
+            display: inline-block; padding: 6px 12px; border-radius: 10px; font-size: 11.5px;
+            font-weight: 700; background: rgba(120,120,128,0.12); color: #4a5568;
+            border: 1px solid rgba(255,255,255,0.5);
+        }
+        .badge-expiry { color: var(--7el-red); background: rgba(238, 42, 36, 0.09); }
+        .badge-tag { color: var(--7el-green-dark); background: rgba(0, 132, 83, 0.09); }
+
+        /* ===== Floating Action Button ===== */
+        .fab {
+            position: fixed; right: 22px; bottom: calc(24px + env(safe-area-inset-bottom));
+            width: 58px; height: 58px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.4);
+            cursor: pointer; font-size: 27px; font-weight: 300; color: white; line-height: 1;
+            background: linear-gradient(135deg, #14b378 0%, var(--7el-green) 55%, var(--7el-green-dark) 100%);
+            box-shadow: 0 14px 34px rgba(0,132,83,0.4), 0 3px 10px rgba(0,0,0,0.15), inset 0 2px 3px rgba(255,255,255,0.5);
+            display: flex; align-items: center; justify-content: center; z-index: 60;
+            transition: transform 0.25s cubic-bezier(0.34,1.3,0.64,1);
+        }
+        .fab:active { transform: scale(0.88); }
+
+        /* ===== Bottom sheet (add/edit form) ===== */
+        .sheet-overlay {
+            display: none; position: fixed; inset: 0; z-index: 100;
+            background: rgba(15, 20, 30, 0.42); backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px);
+            align-items: flex-end; justify-content: center;
+            opacity: 0; transition: opacity 0.25s ease;
+        }
+        .sheet-overlay.open { display: flex; }
+        .sheet-overlay.show { opacity: 1; }
+        .sheet-box {
+            width: 100%; max-width: 480px;
+            background: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(34px) saturate(180%); -webkit-backdrop-filter: blur(34px) saturate(180%);
+            border-radius: 30px 30px 0 0;
+            padding: 10px 24px calc(24px + env(safe-area-inset-bottom)) 24px;
+            border: 1px solid rgba(255,255,255,0.6); border-bottom: none;
+            box-shadow: 0 -16px 50px rgba(0,0,0,0.22);
+            transform: translateY(100%);
+            transition: transform 0.4s cubic-bezier(0.32, 0.9, 0.44, 1.1);
+            max-height: 88vh; overflow-y: auto;
+        }
+        .sheet-overlay.show .sheet-box { transform: translateY(0); }
+        .sheet-handle { width: 38px; height: 5px; border-radius: 3px; background: rgba(0,0,0,0.18); margin: 8px auto 18px auto; }
+
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+        .modal-header h2 { font-size: 17px; margin: 0; color: var(--7el-dark); font-weight: 800; }
+        .modal-close {
+            border: none; background: rgba(120,120,128,0.14); width: 30px; height: 30px; border-radius: 50%;
+            cursor: pointer; font-size: 13px; color: #4a5568; display: flex; align-items: center; justify-content: center;
+        }
+        .modal-close:active { transform: scale(0.88); }
+
+        .field-row { margin-bottom: 16px; }
+        .field-row label {
+            font-weight: 700; display: block; margin-bottom: 7px; color: #2d3748; font-size: 12.5px;
+        }
+        .field-row input[type="text"], .field-row select {
+            width: 100%; padding: 13px 15px; font-size: 15px; font-weight: 500;
+            border-radius: 14px; border: 1px solid rgba(255,255,255,0.6);
+            background: rgba(120,120,128,0.1); color: var(--7el-dark); outline: none; font-family: inherit;
+            transition: all 0.25s ease; cursor: pointer;
+        }
+        .field-row input[type="text"] { cursor: text; }
+        .field-row input:focus, .field-row select:focus {
+            background: rgba(255,255,255,0.85); border-color: rgba(0,132,83,0.4);
+            box-shadow: 0 0 0 4px rgba(0,132,83,0.1);
+        }
+
+        .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+        .modal-actions .btn { flex: 1; }
+
+        /* ===== iOS-style alert (delete confirmation) ===== */
+        .alert-overlay {
+            display: none; position: fixed; inset: 0; z-index: 110;
+            background: rgba(0, 0, 0, 0.35); backdrop-filter: blur(4px);
+            align-items: center; justify-content: center; padding: 20px;
+            opacity: 0; transition: opacity 0.2s ease;
+        }
+        .alert-overlay.open { display: flex; }
+        .alert-overlay.show { opacity: 1; }
+        .alert-box {
+            width: 100%; max-width: 270px;
+            background: rgba(248, 248, 250, 0.82);
+            backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%);
+            border-radius: 18px; overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.6);
+            transform: scale(1.12);
+            transition: transform 0.25s cubic-bezier(0.34,1.3,0.64,1);
+            box-shadow: 0 25px 70px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        .alert-overlay.show .alert-box { transform: scale(1); }
+        .alert-body { padding: 20px 18px 16px 18px; }
+        .alert-body h2 { font-size: 16px; margin: 0 0 6px 0; font-weight: 700; color: var(--7el-dark); }
+        .alert-body p { font-size: 13px; color: #4a5568; margin: 0; line-height: 1.45; }
+        .alert-actions { display: flex; border-top: 1px solid rgba(0,0,0,0.1); }
+        .alert-btn {
+            flex: 1; padding: 13px 8px; background: none; border: none; font-size: 15px;
+            font-weight: 600; cursor: pointer; color: var(--7el-green-dark); font-family: inherit;
+        }
+        .alert-btn + .alert-btn { border-left: 1px solid rgba(0,0,0,0.1); }
+        .alert-btn:active { background: rgba(0,0,0,0.06); }
+        .alert-btn-destructive { color: var(--7el-red); font-weight: 700; }
+
+        /* ===== Toast (iOS notification banner style) ===== */
+        #toast {
+            position: fixed; top: calc(14px + env(safe-area-inset-top)); left: 50%;
+            transform: translateX(-50%) translateY(-40px);
+            background: rgba(250, 250, 252, 0.85);
+            backdrop-filter: blur(26px) saturate(180%); -webkit-backdrop-filter: blur(26px) saturate(180%);
+            color: var(--7el-dark);
+            padding: 13px 20px; border-radius: 18px; font-size: 13.5px; font-weight: 600; z-index: 200;
+            box-shadow: 0 14px 34px rgba(0,0,0,0.18), inset 0 1px 1px rgba(255,255,255,0.7);
+            border: 1px solid rgba(255,255,255,0.6);
+            opacity: 0; pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.34, 1.3, 0.64, 1);
+            max-width: 90vw; text-align: left;
+        }
+        #toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        #toast.toast-success { color: var(--7el-green-dark); }
+        #toast.toast-error { color: var(--7el-red); }
+
+        @media (max-width: 480px) {
+            .container { padding: 26px 18px; border-radius: 28px; }
+            .sheet-box { padding: 10px 18px calc(20px + env(safe-area-inset-bottom)) 18px; }
         }
     </style>
 </head>
@@ -266,113 +388,368 @@
             <div class="stripe-red"></div>
             <div class="stripe-green"></div>
         </div>
-        <h3>TRA CỨU BARCODE, XUẤT FILE IN TEM A4</h3>
+        <h3>TRA CỨU BARCODE, QUẢN LÝ & XUẤT TEM A4</h3>
     </div>
-    
-    <label for="tagFilter">Chọn loại Tag phân loại hàng hóa:</label>
-    <select id="tagFilter" onchange="filterData()">
-        <option value="">-- Chọn phân loại sản phẩm --</option>
-        <option value="tag ngày">Tag Ngày (Daily)</option>
-        <option value="barcode hàng huỷ">Barcode hàng huỷ</option>
-        <option value="tag tuần">Tag Tuần (Weekly)</option>
-        <option value="tag khác">Tag Khác</option>
-    </select>
 
-    <button id="btnPrint" class="btn-print" onclick="generatePDF_A4()">🖨️ Xuất Bản In Giấy A4 (Mở bao bì 6h sáng mai)</button>
+    <span class="section-label">Phân loại sản phẩm</span>
+    <div class="segmented-control" id="segmentedControl">
+        <div class="segmented-indicator" id="segmentedIndicator"></div>
+        <button type="button" class="segment-btn" data-tag="tag ngày">Tag Ngày</button>
+        <button type="button" class="segment-btn" data-tag="barcode hàng huỷ">Hàng Huỷ</button>
+        <button type="button" class="segment-btn" data-tag="tag tuần">Tag Tuần</button>
+        <button type="button" class="segment-btn" data-tag="tag khác">Tag Khác</button>
+    </div>
+
+    <div class="toolbar-row">
+        <div class="search-wrap">
+            <input type="text" id="searchBox" placeholder="Tìm theo tên món..." oninput="updateView()">
+        </div>
+        <button class="icon-square-btn" title="Làm mới dữ liệu" onclick="loadData()">🔄</button>
+    </div>
+
+    <button id="btnPrint" class="btn btn-print" onclick="generatePDF_A4()">🖨️ Xuất Bản In Giấy A4 (Mở bao bì 6h sáng mai)</button>
 
     <div id="loadingText" class="loading">Đang tải dữ liệu hệ thống...</div>
+    <div id="emptyHint" class="empty-hint">Vui lòng chọn phân loại sản phẩm để xem danh sách.</div>
 
-    <table id="resultTable">
-        <thead>
-            <tr>
-                <th>Thông tin món & Mã vạch</th>
-                <th>Bảo quản</th>
-                <th>Hạn dùng gốc</th>
-            </tr>
-        </thead>
-        <tbody id="tableBody"></tbody>
-    </table>
+    <div class="list-meta" id="listMeta" style="display:none;">
+        <span id="listCount">0 sản phẩm</span>
+    </div>
+
+    <div id="itemList"></div>
 </div>
 
+<button class="fab" id="fabAdd" onclick="openAddModal()" title="Thêm sản phẩm mới">+</button>
+
+<!-- Bottom sheet: thêm / sửa sản phẩm -->
+<div id="modalOverlay" class="sheet-overlay">
+    <div class="sheet-box">
+        <div class="sheet-handle"></div>
+        <div class="modal-header">
+            <h2 id="modalTitle">Thêm sản phẩm</h2>
+            <button class="modal-close" onclick="closeModal()">✕</button>
+        </div>
+        <form id="itemForm" onsubmit="submitItemForm(event)">
+            <div class="field-row">
+                <label for="fieldTenMon">Tên món</label>
+                <input type="text" id="fieldTenMon" required placeholder="VD: Cơm gà xối mỡ">
+            </div>
+            <div class="field-row">
+                <label for="fieldBarcode">Barcode</label>
+                <input type="text" id="fieldBarcode" placeholder="VD: 8938512345678">
+            </div>
+            <div class="field-row">
+                <label for="fieldNhietDo">Điều kiện bảo quản</label>
+                <select id="fieldNhietDo">
+                    <option value="Thường">Thường (Ambient)</option>
+                    <option value="Mát">Mát (Chiller)</option>
+                    <option value="Đông lạnh">Đông lạnh (Freezer)</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <label for="fieldHanSuDung">Hạn sử dụng sau khi mở/rã đông</label>
+                <input type="text" id="fieldHanSuDung" placeholder="VD: 24h hoặc 3 ngày">
+            </div>
+            <div class="field-row">
+                <label for="fieldTag">Phân loại Tag</label>
+                <select id="fieldTag" required>
+                    <option value="tag ngày">Tag Ngày (Daily)</option>
+                    <option value="barcode hàng huỷ">Barcode hàng huỷ</option>
+                    <option value="tag tuần">Tag Tuần (Weekly)</option>
+                    <option value="tag khác">Tag Khác</option>
+                </select>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">Huỷ</button>
+                <button type="submit" class="btn btn-primary" id="saveBtn">💾 Lưu</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- iOS-style alert: xác nhận xoá -->
+<div id="confirmOverlay" class="alert-overlay">
+    <div class="alert-box">
+        <div class="alert-body">
+            <h2>Xác nhận xoá</h2>
+            <p id="confirmMessage"></p>
+        </div>
+        <div class="alert-actions">
+            <button class="alert-btn" onclick="closeConfirm()">Huỷ</button>
+            <button class="alert-btn alert-btn-destructive" id="confirmDeleteBtn">Xoá</button>
+        </div>
+    </div>
+</div>
+
+<div id="toast"></div>
+
 <script>
-    const apiURL = "https://script.google.com/macros/s/AKfycbz2bd0K1BrwnkAaakW2Prhs4NiiMkYByKNjgKRUMCVsV7yR8zwqyXb0pnJb1-HskSkTsA/exec"; 
+    const apiURL = "https://script.google.com/macros/s/AKfycbz2bd0K1BrwnkAaakW2Prhs4NiiMkYByKNjgKRUMCVsV7yR8zwqyXb0pnJb1-HskSkTsA/exec";
     let allData = [];
     let currentFilteredData = [];
     let cachedFontBase64 = null;
+    let editingRow = null;      // null = đang thêm mới; số = đang sửa dòng đó
+    let pendingDeleteRow = null;
+    let selectedTag = "";       // tag đang được chọn trên segmented control
 
     window.onload = function() {
-        document.getElementById('loadingText').style.display = 'block';
-        fetch(apiURL)
-            .then(response => response.json())
-            .then(data => {
-                allData = data;
-                document.getElementById('loadingText').style.display = 'none';
-            })
-            .catch(error => {
-                console.error('Lỗi kết nối:', error);
-                document.getElementById('loadingText').innerText = 'Lỗi kết nối database 7-Eleven!';
-            });
+        document.querySelectorAll('.segment-btn').forEach(btn => {
+            btn.addEventListener('click', () => selectSegment(btn));
+        });
+        document.getElementById('confirmDeleteBtn').onclick = doDelete;
+        document.querySelectorAll('.sheet-overlay, .alert-overlay').forEach(overlay => {
+            overlay.addEventListener('click', (e) => { if (e.target === overlay) closeOverlay(overlay.id); });
+        });
+        loadData();
     };
 
-    function filterData() {
-        const selectedTag = document.getElementById('tagFilter').value;
-        const table = document.getElementById('resultTable');
-        const tbody = document.getElementById('tableBody');
+    // ---------- SEGMENTED CONTROL ----------
+    function selectSegment(btn) {
+        document.querySelectorAll('.segment-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        selectedTag = btn.dataset.tag;
+        moveIndicator(btn);
+        updateView();
+    }
+    function moveIndicator(btn) {
+        const indicator = document.getElementById('segmentedIndicator');
+        indicator.style.width = btn.offsetWidth + 'px';
+        indicator.style.left = btn.offsetLeft + 'px';
+    }
+
+    // ---------- TẢI DỮ LIỆU ----------
+    async function loadData() {
+        document.getElementById('loadingText').style.display = 'block';
+        document.getElementById('itemList').style.display = 'none';
+        document.getElementById('emptyHint').style.display = 'none';
+        document.getElementById('listMeta').style.display = 'none';
+        try {
+            const response = await fetch(apiURL);
+            const data = await response.json();
+            allData = data;
+            document.getElementById('loadingText').style.display = 'none';
+            updateView();
+        } catch (error) {
+            console.error('Lỗi kết nối:', error);
+            document.getElementById('loadingText').innerText = 'Lỗi kết nối database 7-Eleven!';
+        }
+    }
+
+    // ---------- LỌC + TÌM KIẾM + RENDER ----------
+    function updateView() {
+        const searchText = document.getElementById('searchBox').value.trim().toLowerCase();
         const btnPrint = document.getElementById('btnPrint');
-        
-        tbody.innerHTML = "";
+        const emptyHint = document.getElementById('emptyHint');
+        const listMeta = document.getElementById('listMeta');
+        const itemList = document.getElementById('itemList');
 
         if (selectedTag === "") {
-            table.style.display = "none";
+            itemList.style.display = "none";
             btnPrint.style.display = "none";
+            emptyHint.style.display = "block";
+            emptyHint.innerText = "Vui lòng chọn phân loại sản phẩm để xem danh sách.";
+            listMeta.style.display = "none";
             currentFilteredData = [];
             return;
         }
 
-        currentFilteredData = allData.filter(item => item.Tag && item.Tag.toString().toLowerCase().trim() === selectedTag.toLowerCase());
-
-        if(currentFilteredData.length === 0) {
-            tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding: 30px; color:#718096; font-weight:600;">Không có sản phẩm nào.</td></tr>`;
-            btnPrint.style.display = "none";
-        } else {
-            btnPrint.style.display = "block";
-            currentFilteredData.forEach((item, index) => {
-                const barcodeId = `barcode-${index}`;
-                const cleanBarcode = item.Barcode ? item.Barcode.toString().trim() : '';
-
-                let row = `<tr>
-                    <td>
-                        <div class="food-name">${item.TenMon || ''}</div>
-                        <div class="barcode-container">
-                            ${cleanBarcode ? `<svg id="${barcodeId}" class="barcode-img"></svg>` : '<span style="color:#718096; font-size:12px;">Không có barcode</span>'}
-                        </div>
-                    </td>
-                    <td><span class="temp-badge">${item.NhietDo || 'Thường'}</span></td>
-                    <td style="color: var(--7el-red); font-weight: 800;">${item.HanSuDung || ''}</td>
-                </tr>`;
-                tbody.innerHTML += row;
-            });
-
-            currentFilteredData.forEach((item, index) => {
-                const cleanBarcode = item.Barcode ? item.Barcode.toString().trim() : '';
-                if (cleanBarcode) {
-                    try {
-                        JsBarcode(`#barcode-${index}`, cleanBarcode, {
-                            format: "CODE128",
-                            lineColor: "#000",
-                            width: 1.5,
-                            height: 45,
-                            displayValue: true
-                        });
-                    } catch (err) {
-                        console.error("Lỗi tạo mã vạch:", item.TenMon, err);
-                    }
-                }
-            });
+        let filtered = allData.filter(item => item.Tag && item.Tag.toString().toLowerCase().trim() === selectedTag.toLowerCase());
+        if (searchText) {
+            filtered = filtered.filter(item => (item.TenMon || '').toString().toLowerCase().includes(searchText));
         }
-        table.style.display = "table";
+        currentFilteredData = filtered;
+
+        if (currentFilteredData.length === 0) {
+            itemList.style.display = "none";
+            btnPrint.style.display = "none";
+            listMeta.style.display = "none";
+            emptyHint.style.display = "block";
+            emptyHint.innerText = "Không có sản phẩm nào phù hợp.";
+        } else {
+            emptyHint.style.display = "none";
+            btnPrint.style.display = "block";
+            listMeta.style.display = "flex";
+            document.getElementById('listCount').innerText = `${currentFilteredData.length} sản phẩm`;
+            renderList();
+        }
     }
 
+    function renderList() {
+        const itemList = document.getElementById('itemList');
+        itemList.innerHTML = "";
+        itemList.style.display = "flex";
+
+        currentFilteredData.forEach((item, index) => {
+            const barcodeId = `barcode-${index}`;
+            const cleanBarcode = item.Barcode ? item.Barcode.toString().trim() : '';
+
+            const card = document.createElement('div');
+            card.className = 'item-card';
+            card.innerHTML = `
+                <div class="item-card-header">
+                    <div class="food-name">${escapeHtml(item.TenMon || '')}</div>
+                    <div class="item-actions">
+                        <button class="pill-btn pill-edit" data-idx="${index}">✏️ Sửa</button>
+                        <button class="pill-btn pill-delete" data-idx="${index}">🗑️ Xoá</button>
+                    </div>
+                </div>
+                <div class="barcode-container">
+                    ${cleanBarcode ? `<svg id="${barcodeId}" class="barcode-img"></svg>` : '<span class="no-barcode">Không có barcode</span>'}
+                </div>
+                <div class="item-meta">
+                    <span class="badge">${escapeHtml(item.NhietDo || 'Thường')}</span>
+                    <span class="badge badge-expiry">${escapeHtml(item.HanSuDung || '')}</span>
+                    <span class="badge badge-tag">${escapeHtml(item.Tag || '')}</span>
+                </div>
+            `;
+            itemList.appendChild(card);
+        });
+
+        itemList.querySelectorAll('.pill-edit').forEach(btn => {
+            btn.onclick = () => openEditModal(currentFilteredData[btn.dataset.idx]);
+        });
+        itemList.querySelectorAll('.pill-delete').forEach(btn => {
+            btn.onclick = () => confirmDelete(currentFilteredData[btn.dataset.idx]);
+        });
+
+        currentFilteredData.forEach((item, index) => {
+            const cleanBarcode = item.Barcode ? item.Barcode.toString().trim() : '';
+            if (cleanBarcode) {
+                try {
+                    JsBarcode(`#barcode-${index}`, cleanBarcode, {
+                        format: "CODE128", lineColor: "#000", width: 1.5, height: 45, displayValue: true
+                    });
+                } catch (err) {
+                    console.error("Lỗi tạo mã vạch:", item.TenMon, err);
+                }
+            }
+        });
+    }
+
+    function escapeHtml(str) {
+        return str.toString()
+            .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+    }
+
+    // ---------- BOTTOM SHEET THÊM / SỬA ----------
+    function openAddModal() {
+        editingRow = null;
+        document.getElementById('modalTitle').innerText = "Thêm sản phẩm mới";
+        document.getElementById('itemForm').reset();
+        document.getElementById('fieldNhietDo').value = "Thường";
+        document.getElementById('fieldTag').value = selectedTag || "tag ngày";
+        openOverlay('modalOverlay');
+    }
+
+    function openEditModal(item) {
+        editingRow = item._row;
+        document.getElementById('modalTitle').innerText = "Chỉnh sửa sản phẩm";
+        document.getElementById('fieldTenMon').value = item.TenMon || "";
+        document.getElementById('fieldBarcode').value = item.Barcode || "";
+        document.getElementById('fieldNhietDo').value = item.NhietDo || "Thường";
+        document.getElementById('fieldHanSuDung').value = item.HanSuDung || "";
+        document.getElementById('fieldTag').value = (item.Tag || "tag ngày").toString().toLowerCase().trim();
+        openOverlay('modalOverlay');
+    }
+
+    function closeModal() { closeOverlay('modalOverlay'); }
+
+    async function submitItemForm(e) {
+        e.preventDefault();
+        const saveBtn = document.getElementById('saveBtn');
+        const originalText = saveBtn.innerText;
+        saveBtn.disabled = true;
+        saveBtn.innerText = "⏳ Đang lưu...";
+
+        const item = {
+            TenMon: document.getElementById('fieldTenMon').value.trim(),
+            Barcode: document.getElementById('fieldBarcode').value.trim(),
+            NhietDo: document.getElementById('fieldNhietDo').value,
+            HanSuDung: document.getElementById('fieldHanSuDung').value.trim(),
+            Tag: document.getElementById('fieldTag').value
+        };
+
+        const payload = editingRow
+            ? { action: 'update', row: editingRow, item: item }
+            : { action: 'add', item: item };
+
+        try {
+            await postToAPI(payload);
+            closeModal();
+            showToast(editingRow ? "✅ Đã cập nhật sản phẩm" : "✅ Đã thêm sản phẩm mới", "success");
+            await loadData();
+        } catch (err) {
+            showToast("⚠️ Lỗi: " + err.message, "error");
+        } finally {
+            saveBtn.disabled = false;
+            saveBtn.innerText = originalText;
+        }
+    }
+
+    // ---------- XOÁ ----------
+    function confirmDelete(item) {
+        pendingDeleteRow = item._row;
+        document.getElementById('confirmMessage').innerText = `Bạn có chắc muốn xoá "${item.TenMon || 'sản phẩm này'}" khỏi danh sách?`;
+        openOverlay('confirmOverlay');
+    }
+
+    function closeConfirm() { closeOverlay('confirmOverlay'); pendingDeleteRow = null; }
+
+    async function doDelete() {
+        if (!pendingDeleteRow) return;
+        const btn = document.getElementById('confirmDeleteBtn');
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = "Đang xoá...";
+        try {
+            await postToAPI({ action: 'delete', row: pendingDeleteRow });
+            closeConfirm();
+            showToast("✅ Đã xoá sản phẩm", "success");
+            await loadData();
+        } catch (err) {
+            showToast("⚠️ Lỗi: " + err.message, "error");
+        } finally {
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    }
+
+    // ---------- GỌI API (POST) ----------
+    async function postToAPI(payload) {
+        const res = await fetch(apiURL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+            body: JSON.stringify(payload)
+        });
+        const data = await res.json();
+        if (!data.success) throw new Error(data.error || 'Lỗi không xác định từ máy chủ');
+        return data;
+    }
+
+    // ---------- OVERLAY / TOAST HELPERS ----------
+    function openOverlay(id) {
+        const el = document.getElementById(id);
+        el.classList.add('open');
+        requestAnimationFrame(() => el.classList.add('show'));
+    }
+    function closeOverlay(id) {
+        const el = document.getElementById(id);
+        el.classList.remove('show');
+        setTimeout(() => el.classList.remove('open'), 300);
+    }
+
+    let toastTimer = null;
+    function showToast(message, type) {
+        const toast = document.getElementById('toast');
+        toast.innerText = message;
+        toast.className = '';
+        toast.classList.add('show', type === 'error' ? 'toast-error' : 'toast-success');
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => { toast.classList.remove('show'); }, 3000);
+    }
+
+    // ---------- PDF (giữ nguyên logic gốc) ----------
     function parseDateTime(date) {
         const d = String(date.getDate()).padStart(2, '0');
         const m = String(date.getMonth() + 1).padStart(2, '0');
@@ -381,9 +758,8 @@
         const minutes = String(date.getMinutes()).padStart(2, '0');
         const ampm = hours >= 12 ? 'PM' : 'AM';
         hours = hours % 12;
-        hours = hours ? hours : 12; 
+        hours = hours ? hours : 12;
         const h = String(hours).padStart(2, '0');
-        
         return { dateStr: `${d}/${m}/${y}`, timeStr: `${h}:${minutes}`, ampm: ampm };
     }
 
@@ -418,7 +794,7 @@
                 const response = await fetch(fontUrl);
                 if (!response.ok) throw new Error("Không thể kết nối máy chủ Font");
                 const arrayBuffer = await response.arrayBuffer();
-                
+
                 let binary = '';
                 const bytes = new Uint8Array(arrayBuffer);
                 for (let i = 0; i < bytes.byteLength; i++) {
@@ -441,13 +817,13 @@
 
             const openTimeInfo = parseDateTime(tomorrow);
 
-            const tagWidth = 50;   
-            const tagHeight = 30;  
-            const startX = 5;      
-            const startY = 10;     
-            const maxCols = 4;     
-            const maxRows = 9;     
-            const tagsPerPage = maxCols * maxRows; 
+            const tagWidth = 50;
+            const tagHeight = 30;
+            const startX = 5;
+            const startY = 10;
+            const maxCols = 4;
+            const maxRows = 9;
+            const tagsPerPage = maxCols * maxRows;
 
             currentFilteredData.forEach((item, index) => {
                 if (index > 0 && index % tagsPerPage === 0) {
@@ -460,21 +836,21 @@
 
                 const x = startX + (col * tagWidth);
                 const y = startY + (row * tagHeight);
-                const splitX = x + 32; 
+                const splitX = x + 32;
 
-                doc.setDrawColor(120); 
+                doc.setDrawColor(120);
                 doc.setLineWidth(0.3);
-                doc.rect(x, y, tagWidth, tagHeight); 
+                doc.rect(x, y, tagWidth, tagHeight);
 
-                doc.line(splitX, y, splitX, y + tagHeight); 
-                doc.line(x, y + 9, splitX, y + 9);          
-                doc.line(x, y + 19, splitX, y + 19);        
+                doc.line(splitX, y, splitX, y + tagHeight);
+                doc.line(x, y + 9, splitX, y + 9);
+                doc.line(x, y + 19, splitX, y + 19);
 
                 doc.setTextColor(0, 0, 0);
-                
+
                 doc.setFontSize(5.5);
                 doc.text("SẢN PHẨM:", x + 1.5, y + 3.2);
-                
+
                 doc.setFontSize(6.5);
                 let name = (item.TenMon || "SẢN PHẨM").toUpperCase();
                 if (name.length > 22) name = name.substring(0, 20) + "..";
@@ -488,7 +864,7 @@
                 doc.setFontSize(5);
                 doc.text(`NGÀY: ${openTimeInfo.dateStr}`, x + 1.5, y + 15);
                 doc.text(`GIỜ:  ${openTimeInfo.timeStr}`, x + 1.5, y + 18);
-                
+
                 doc.rect(splitX - 6.5, y + 13.5, 1.8, 1.8); doc.setFontSize(4.5); doc.text("AM", splitX - 4, y + 15);
                 doc.rect(splitX - 6.5, y + 16.5, 1.8, 1.8); doc.setFontSize(4.5); doc.text("PM", splitX - 4, y + 18);
                 if(openTimeInfo.ampm === 'AM') { doc.setFontSize(5); doc.text("X", splitX - 6.2, y + 14.9); }
@@ -496,7 +872,7 @@
 
                 doc.setFontSize(5.5);
                 doc.text("THỜI HẠN HỦY", x + 1.5, y + 22.2);
-                
+
                 const expiryDate = calculateExpiry(tomorrow, item.HanSuDung);
                 if (expiryDate) {
                     const expInfo = parseDateTime(expiryDate);
@@ -521,7 +897,7 @@
                 doc.text("Quản:", splitX + 2, y + 5.8);
 
                 const storageTemp = (item.NhietDo || "").toLowerCase().trim();
-                
+
                 doc.setFontSize(4.8);
                 doc.rect(splitX + 2, y + 8.5, 1.8, 1.8); doc.text("Freezer", splitX + 4.8, y + 10);
                 doc.rect(splitX + 2, y + 11.5, 1.8, 1.8); doc.text("Chiller", splitX + 4.8, y + 13);
@@ -539,12 +915,12 @@
                 doc.setFontSize(5.5);
                 doc.text("Nhân Viên:", splitX + 2, y + 21);
                 doc.setFontSize(6.5);
-                doc.setFont('RobotoCustom', 'bold'); 
+                doc.setFont('RobotoCustom', 'bold');
                 doc.text("HUY", splitX + 2, y + 25);
-                doc.setFont('RobotoCustom', 'normal'); 
+                doc.setFont('RobotoCustom', 'normal');
             });
 
-            const selectedTagName = document.getElementById('tagFilter').value;
+            const selectedTagName = selectedTag || "tag";
             doc.save(`Form_In_A4_7Eleven_${selectedTagName.replace(/\s+/g, '_')}.pdf`);
 
         } catch (error) {
