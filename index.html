@@ -102,7 +102,9 @@
             border-radius: 16px; padding: 4px;
             backdrop-filter: blur(20px) saturate(180%);
             box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
+            overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none;
         }
+        .segmented-control::-webkit-scrollbar { display: none; }
         .segmented-indicator {
             position: absolute; top: 4px; bottom: 4px; left: 4px; width: 40px;
             background: rgba(255,255,255,0.92);
@@ -112,9 +114,9 @@
             z-index: 0;
         }
         .segment-btn {
-            position: relative; z-index: 1; flex: 1; border: none; background: transparent;
-            padding: 10px 4px; font-size: 12px; font-weight: 700; color: #5a6474;
-            border-radius: 12px; cursor: pointer; font-family: inherit;
+            position: relative; z-index: 1; flex: 0 0 auto; border: none; background: transparent;
+            padding: 10px 12px; font-size: 12px; font-weight: 700; color: #5a6474;
+            border-radius: 12px; cursor: pointer; font-family: inherit; min-width: 88px;
             transition: color 0.25s ease; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
         }
         .segment-btn.active { color: var(--7el-green-dark); }
@@ -394,8 +396,10 @@
     <span class="section-label">Phân loại sản phẩm</span>
     <div class="segmented-control" id="segmentedControl">
         <div class="segmented-indicator" id="segmentedIndicator"></div>
+        <button type="button" class="segment-btn" data-tag="hạn sử dụng food intag pos">HSD Food InTag POS</button>
         <button type="button" class="segment-btn" data-tag="tag ngày">Tag Ngày</button>
         <button type="button" class="segment-btn" data-tag="barcode hàng huỷ">Hàng Huỷ</button>
+        <button type="button" class="segment-btn" data-tag="hàng hủy propbev">Hàng Hủy PropBev</button>
         <button type="button" class="segment-btn" data-tag="tag tuần">Tag Tuần</button>
         <button type="button" class="segment-btn" data-tag="tag khác">Tag Khác</button>
     </div>
@@ -451,10 +455,16 @@
                 <input type="text" id="fieldHanSuDung" placeholder="VD: 24h hoặc 3 ngày">
             </div>
             <div class="field-row">
+                <label for="fieldNgaySanXuat">Ngày sản xuất</label>
+                <input type="date" id="fieldNgaySanXuat">
+            </div>
+            <div class="field-row">
                 <label for="fieldTag">Phân loại Tag</label>
                 <select id="fieldTag" required>
+                    <option value="hạn sử dụng food intag pos">HSD Food InTag POS</option>
                     <option value="tag ngày">Tag Ngày (Daily)</option>
                     <option value="barcode hàng huỷ">Barcode hàng huỷ</option>
+                    <option value="hàng hủy propbev">Hàng Hủy PropBev</option>
                     <option value="tag tuần">Tag Tuần (Weekly)</option>
                     <option value="tag khác">Tag Khác</option>
                 </select>
@@ -491,6 +501,7 @@
     let editingRow = null;      // null = đang thêm mới; số = đang sửa dòng đó
     let pendingDeleteRow = null;
     let selectedTag = "";       // tag đang được chọn trên segmented control
+    const FOOD_EXPIRY_TAG = "hạn sử dụng food intag pos"; // tag rút gọn cho tab HSD Food InTag POS
 
     window.onload = function() {
         document.querySelectorAll('.segment-btn').forEach(btn => {
@@ -515,6 +526,7 @@
         const indicator = document.getElementById('segmentedIndicator');
         indicator.style.width = btn.offsetWidth + 'px';
         indicator.style.left = btn.offsetLeft + 'px';
+        btn.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' });
     }
 
     // ---------- TẢI DỮ LIỆU ----------
@@ -579,29 +591,52 @@
         itemList.innerHTML = "";
         itemList.style.display = "flex";
 
+        const isFoodExpiryTab = selectedTag.toString().toLowerCase().trim() === FOOD_EXPIRY_TAG;
+
         currentFilteredData.forEach((item, index) => {
             const barcodeId = `barcode-${index}`;
             const cleanBarcode = item.Barcode ? item.Barcode.toString().trim() : '';
 
             const card = document.createElement('div');
             card.className = 'item-card';
-            card.innerHTML = `
-                <div class="item-card-header">
-                    <div class="food-name">${escapeHtml(item.TenMon || '')}</div>
-                    <div class="item-actions">
-                        <button class="pill-btn pill-edit" data-idx="${index}">✏️ Sửa</button>
-                        <button class="pill-btn pill-delete" data-idx="${index}">🗑️ Xoá</button>
+
+            if (isFoodExpiryTab) {
+                // Tab "Hạn Sử Dụng Food InTag POS": chỉ hiện tên món, barcode, ngày sản xuất
+                card.innerHTML = `
+                    <div class="item-card-header">
+                        <div class="food-name">${escapeHtml(item.TenMon || '')}</div>
+                        <div class="item-actions">
+                            <button class="pill-btn pill-edit" data-idx="${index}">✏️ Sửa</button>
+                            <button class="pill-btn pill-delete" data-idx="${index}">🗑️ Xoá</button>
+                        </div>
                     </div>
-                </div>
-                <div class="barcode-container">
-                    ${cleanBarcode ? `<svg id="${barcodeId}" class="barcode-img"></svg>` : '<span class="no-barcode">Không có barcode</span>'}
-                </div>
-                <div class="item-meta">
-                    <span class="badge">${escapeHtml(item.NhietDo || 'Thường')}</span>
-                    <span class="badge badge-expiry">${escapeHtml(item.HanSuDung || '')}</span>
-                    <span class="badge badge-tag">${escapeHtml(item.Tag || '')}</span>
-                </div>
-            `;
+                    <div class="barcode-container">
+                        ${cleanBarcode ? `<svg id="${barcodeId}" class="barcode-img"></svg>` : '<span class="no-barcode">Không có barcode</span>'}
+                    </div>
+                    <div class="item-meta">
+                        <span class="badge badge-expiry">📅 NSX: ${escapeHtml(item.NgaySanXuat || 'Chưa cập nhật')}</span>
+                    </div>
+                `;
+            } else {
+                // Các tab còn lại (bao gồm "Hàng Hủy PropBev"): giữ nguyên cấu trúc cũ
+                card.innerHTML = `
+                    <div class="item-card-header">
+                        <div class="food-name">${escapeHtml(item.TenMon || '')}</div>
+                        <div class="item-actions">
+                            <button class="pill-btn pill-edit" data-idx="${index}">✏️ Sửa</button>
+                            <button class="pill-btn pill-delete" data-idx="${index}">🗑️ Xoá</button>
+                        </div>
+                    </div>
+                    <div class="barcode-container">
+                        ${cleanBarcode ? `<svg id="${barcodeId}" class="barcode-img"></svg>` : '<span class="no-barcode">Không có barcode</span>'}
+                    </div>
+                    <div class="item-meta">
+                        <span class="badge">${escapeHtml(item.NhietDo || 'Thường')}</span>
+                        <span class="badge badge-expiry">${escapeHtml(item.HanSuDung || '')}</span>
+                        <span class="badge badge-tag">${escapeHtml(item.Tag || '')}</span>
+                    </div>
+                `;
+            }
             itemList.appendChild(card);
         });
 
@@ -649,6 +684,7 @@
         document.getElementById('fieldBarcode').value = item.Barcode || "";
         document.getElementById('fieldNhietDo').value = item.NhietDo || "Thường";
         document.getElementById('fieldHanSuDung').value = item.HanSuDung || "";
+        document.getElementById('fieldNgaySanXuat').value = item.NgaySanXuat || "";
         document.getElementById('fieldTag').value = (item.Tag || "tag ngày").toString().toLowerCase().trim();
         openOverlay('modalOverlay');
     }
@@ -667,6 +703,7 @@
             Barcode: document.getElementById('fieldBarcode').value.trim(),
             NhietDo: document.getElementById('fieldNhietDo').value,
             HanSuDung: document.getElementById('fieldHanSuDung').value.trim(),
+            NgaySanXuat: document.getElementById('fieldNgaySanXuat').value,
             Tag: document.getElementById('fieldTag').value
         };
 
